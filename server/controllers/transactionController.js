@@ -1,18 +1,15 @@
 const Transaction = require('../models/Transaction');
 const { Types } = require('mongoose');
 
-// @route   POST /api/transactions
-// @desc    Staff records a new transaction
-// @access  Protected (Staff/Admin)
+
 exports.createTransaction = async (req, res) => {
     try {
-        // The recordedBy ID is taken from the authenticated user (req.user is set by the 'protect' middleware)
         const recordedBy = req.user._id; 
         const { type, amount, description, referenceId, paymentMethod } = req.body;
 
         const transaction = await Transaction.create({
             type,
-            amount: parseFloat(amount), // Ensure amount is stored as a number
+            amount: parseFloat(amount), 
             description,
             referenceId,
             paymentMethod,
@@ -25,7 +22,6 @@ exports.createTransaction = async (req, res) => {
         });
 
     } catch (error) {
-        // Handle Mongoose validation errors
         if (error.name === 'ValidationError') {
             const errors = Object.values(error.errors).map(val => val.message);
             return res.status(400).json({ 
@@ -38,14 +34,12 @@ exports.createTransaction = async (req, res) => {
     }
 };
 
-// @route   GET /api/transactions/myday
-// @desc    Staff fetches all transactions they recorded today
-// @access  Protected (Staff/Admin)
+
 exports.getMyDayTransactions = async (req, res) => {
     try {
         const userId = req.user._id;
 
-        // Define start and end of today in UTC
+        
         const now = new Date();
         const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
@@ -58,9 +52,9 @@ exports.getMyDayTransactions = async (req, res) => {
             }
         })
         .sort({ createdAt: -1 })
-        .populate('recordedBy', 'fullName username role'); // Populate to show who recorded it (useful for Admin view too)
+        .populate('recordedBy', 'fullName username role'); 
 
-        // Calculate totals for the day
+       
         const totals = Transaction.calculateTotals(transactions);
 
         res.status(200).json({
@@ -76,17 +70,15 @@ exports.getMyDayTransactions = async (req, res) => {
 };
 
 
-// @route   GET /api/transactions/summary
-// @desc    Admin fetches a comprehensive daily summary across all staff
-// @access  Protected (Admin only)
+
 exports.getDailySummary = async (req, res) => {
     try {
-        // Define start and end of today in UTC
+        
         const now = new Date();
         const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
 
-        // Fetch all transactions recorded today
+        
         const allTransactions = await Transaction.find({
             createdAt: { 
                 $gte: startOfDay, 
@@ -96,10 +88,8 @@ exports.getDailySummary = async (req, res) => {
         .populate('recordedBy', 'fullName username role')
         .sort({ createdAt: 1 });
 
-        // Calculate aggregate totals
         const aggregateTotals = Transaction.calculateTotals(allTransactions);
 
-        // Group transactions by staff member (recordedBy)
         const staffSummaryMap = new Map();
         
         allTransactions.forEach(t => {
@@ -119,7 +109,6 @@ exports.getDailySummary = async (req, res) => {
             const staffRecord = staffSummaryMap.get(userId);
             staffRecord.transactions.push(t);
             
-            // Simple running totals for staff (more complex calculations use calculateTotals later)
             if (t.type.includes('Payment') && t.paymentMethod === 'Cash') {
                 staffRecord.totals.totalCash += t.amount;
             } else if (t.type.includes('Payment')) {
@@ -129,14 +118,11 @@ exports.getDailySummary = async (req, res) => {
             }
         });
         
-        // Finalize staff summaries
         const detailedStaffSummaries = Array.from(staffSummaryMap.values()).map(staffData => {
-            // Recalculate robust totals for each staff member using the static method
             const staffTotals = Transaction.calculateTotals(staffData.transactions);
             return {
                 staff: staffData.staff,
                 summary: staffTotals,
-                // transactions: staffData.transactions // Uncomment if admin needs all details
             };
         });
 
@@ -156,7 +142,6 @@ exports.getDailySummary = async (req, res) => {
     }
 };
 
-// GET /api/transactions/recent
 exports.getRecentTransactions = async (req, res) => {
     try {
         const recentTransactions = await Transaction.find()
@@ -170,3 +155,4 @@ exports.getRecentTransactions = async (req, res) => {
         res.status(500).json({ message: 'Error fetching recent transactions' });
     }
 };
+

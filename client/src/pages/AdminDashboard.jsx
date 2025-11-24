@@ -33,7 +33,7 @@ const AdminDashboard = ({ auth, setStatus }) => {
 
 useEffect(() => {
     refreshData();
-}, []); // now safe if setStatus is stable
+}, []); 
 
 
     if (isLoading && !summary) {

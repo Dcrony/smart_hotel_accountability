@@ -17,12 +17,12 @@ const apiService = {
     // 1. Auth: Login
     login: async (username, password) => {
         const response = await axios.post(`${API_URL}/auth/login`, { username, password });
-        
+
         if (response.data.token) {
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
         }
-        
+
         return response.data;
     },
 
@@ -56,15 +56,15 @@ const apiService = {
 
     // 5. Admin: Fetch recent transactions (last 20)
     fetchRecent: async () => {
-        // Use a dedicated recent endpoint if available, otherwise fallback to summary
         const response = await axios.get(
-            `${API_URL}/transactions/recent`, // <--- make sure this exists on backend
+            `${API_URL}/transactions/recent`,
             apiService.getHeaders()
         );
 
         // If backend doesn’t have /recent, fallback to summary
         const allTx = response.data || [];
-        return allTx.slice(-20).reverse(); // newest first
+        return allTx.slice(0, 20); // newest first
+
     }
 };
 
