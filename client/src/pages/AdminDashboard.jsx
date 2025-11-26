@@ -16,24 +16,29 @@ const AdminDashboard = ({ auth, setStatus }) => {
 
 
     const refreshData = useCallback(async () => {
-        setIsLoading(true);
-        setStatus('loading', 'Syncing data...');
+    setIsLoading(true);
+    setStatus('loading', 'Syncing data...');
 
-        try {
-            const [recent, summaryData] = await Promise.all([
-                apiService.fetchRecent(),
-                apiService.fetchSummary()
-            ]);
-            setTransactions(recent || []);
-            setSummary(summaryData?.aggregate || summaryData || null);
-            setStatus('success', 'Dashboard updated');
-        } catch (error) {
-            console.error(error);
-            setStatus('error', 'Failed to fetch dashboard data');
-        } finally {
-            setIsLoading(false);
-        }
-    }, [setStatus]);
+    try {
+        const [recent, summaryData] = await Promise.all([
+            apiService.fetchRecent(),
+            apiService.fetchSummary()
+        ]);
+
+        setTransactions(recent || []);
+        setSummary(summaryData?.aggregate || {});
+
+        setStatus('success', 'Dashboard updated');
+        console.log("SUMMARY:", summaryData?.aggregate);
+
+    } catch (error) {
+        console.error(error);
+        setStatus('error', 'Failed to fetch dashboard data');
+    } finally {
+        setIsLoading(false);
+    }
+}, [setStatus]);
+
 
     useEffect(() => {
         refreshData();
@@ -108,7 +113,9 @@ const AdminDashboard = ({ auth, setStatus }) => {
                     icon={Zap}
                     color="text-yellow-400"
                 />
+                
             </div>
+            
 
             {/* Recent Transactions */}
             <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">

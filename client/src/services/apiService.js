@@ -3,7 +3,8 @@ import axios from 'axios';
 const API_URL = 'http://localhost:5000/api';
 
 const apiService = {
-    // Helper to get headers with JWT token
+
+    // ✅ JWT Headers
     getHeaders: () => {
         const token = localStorage.getItem('token');
         return {
@@ -14,90 +15,101 @@ const apiService = {
         };
     },
 
+    // ✅ AUTH
     registerUser: async (data) => {
-    const response = await axios.post(
-        `${API_URL}/auth/register`,
-        data,
-        apiService.getHeaders()
-    );
-    return response.data;
-},
-
-getUsers: async (page, search) => {
-  const res = await axios.get(`${API_URL}/auth/users?page=${page}&search=${search}`, apiService.getHeaders());
-  return res.data;
-},
-
-createUser: async (data) => {
-  const res = await axios.post(`${API_URL}/auth/users`, data, apiService.getHeaders());
-  return res.data;
-},
-
-deleteUser: async (id) => {
-  const res = await axios.delete(`${API_URL}/auth/users/${id}`, apiService.getHeaders());
-  return res.data;
-},
-
-updateUserRole: async (id, role) => {
-  const res = await axios.put(`${API_URL}/auth/users/${id}/role`, { role }, apiService.getHeaders());
-  return res.data;
-},
-
-
-
-
-
-    // 1. Auth: Login
-    login: async (username, password) => {
-        const response = await axios.post(`${API_URL}/auth/login`, { username, password });
-
-        if (response.data.token) {
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-        }
-
-        return response.data;
+        const res = await axios.post(
+            `${API_URL}/auth/register`,
+            data,
+            apiService.getHeaders()
+        );
+        return res.data;
     },
 
-    // 2. Transaction: Create (Staff)
+    login: async (username, password) => {
+        const res = await axios.post(`${API_URL}/auth/login`, { username, password });
+        
+        if (res.data.token) {
+            localStorage.setItem('token', res.data.token);
+            localStorage.setItem('user', JSON.stringify(res.data.user));
+        }
+
+        return res.data;
+    },
+
+
+    // ✅ ADMIN — USER MANAGEMENT
+    getUsers: async (page = 1, search = '') => {
+        const res = await axios.get(
+            `${API_URL}/auth/users?page=${page}&search=${search}`,
+            apiService.getHeaders()
+        );
+        return res.data;
+    },
+
+    createUser: async (data) => {
+        const res = await axios.post(
+            `${API_URL}/auth/users`,
+            data,
+            apiService.getHeaders()
+        );
+        return res.data;
+    },
+
+    deleteUser: async (id) => {
+        const res = await axios.delete(
+            `${API_URL}/auth/users/${id}`,
+            apiService.getHeaders()
+        );
+        return res.data;
+    },
+
+    updateUserRole: async (id, role) => {
+        const res = await axios.put(
+            `${API_URL}/auth/users/${id}/role`,
+            { role },
+            apiService.getHeaders()
+        );
+        return res.data;
+    },
+
+
+    // ✅ STAFF — CREATE TRANSACTION
     createTransaction: async (data) => {
-        const response = await axios.post(
+        const res = await axios.post(
             `${API_URL}/transactions`,
             data,
             apiService.getHeaders()
         );
-        return response.data;
+        return res.data;
     },
 
-    // 3. Staff: Fetch OWN daily transactions
+    // ✅ STAFF — DAILY RECORD
     fetchMyDayTransactions: async () => {
-        const response = await axios.get(
+        const res = await axios.get(
             `${API_URL}/transactions/myday`,
             apiService.getHeaders()
         );
-        return response.data; // {transactions, summary}
+        return res.data;
     },
 
-    // 4. Admin: Fetch TODAY summary
+
+    // ✅ ADMIN — TODAY SUMMARY
     fetchSummary: async () => {
-        const response = await axios.get(
+        const res = await axios.get(
             `${API_URL}/transactions/summary`,
             apiService.getHeaders()
         );
-        return response.data; // {aggregate, staffSummaries, date, allTransactions?}
+        return res.data; // contains .aggregate
     },
 
-    // 5. Admin: Fetch recent transactions (last 20)
+    // ✅ ADMIN — RECENT TRANSACTIONS
     fetchRecent: async () => {
-        const response = await axios.get(
+        const res = await axios.get(
             `${API_URL}/transactions/recent`,
             apiService.getHeaders()
         );
 
-        // If backend doesn’t have /recent, fallback to summary
-        const allTx = response.data || [];
-        return allTx.slice(0, 20); // newest first
-
+        return res.data || [];
     }
 };
 

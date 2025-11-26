@@ -52,7 +52,7 @@ export default function UserManagementPage({ auth }) {
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-10 text-white">
+    <div className="px-32 py-10  text-white bg-gray-700">
       {/* Back */}
       <button
         onClick={() => navigate("/admin")}
