@@ -14,6 +14,39 @@ const apiService = {
         };
     },
 
+    registerUser: async (data) => {
+    const response = await axios.post(
+        `${API_URL}/auth/register`,
+        data,
+        apiService.getHeaders()
+    );
+    return response.data;
+},
+
+getUsers: async (page, search) => {
+  const res = await axios.get(`${API_URL}/auth/users?page=${page}&search=${search}`, apiService.getHeaders());
+  return res.data;
+},
+
+createUser: async (data) => {
+  const res = await axios.post(`${API_URL}/auth/users`, data, apiService.getHeaders());
+  return res.data;
+},
+
+deleteUser: async (id) => {
+  const res = await axios.delete(`${API_URL}/auth/users/${id}`, apiService.getHeaders());
+  return res.data;
+},
+
+updateUserRole: async (id, role) => {
+  const res = await axios.put(`${API_URL}/auth/users/${id}/role`, { role }, apiService.getHeaders());
+  return res.data;
+},
+
+
+
+
+
     // 1. Auth: Login
     login: async (username, password) => {
         const response = await axios.post(`${API_URL}/auth/login`, { username, password });

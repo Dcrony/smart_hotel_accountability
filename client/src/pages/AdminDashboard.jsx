@@ -1,39 +1,43 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-    LayoutDashboard, RefreshCw, LogOut, TrendingUp, Zap, DollarSign, Clock 
+import {
+    LayoutDashboard, RefreshCw, LogOut, TrendingUp, Zap, DollarSign, Clock
 } from 'lucide-react';
 import apiService from '../services/apiService';
 import { formatCurrency, formatTime } from '../utils/formatters';
 import KPICard from '../components/KPICard';
+import { useNavigate } from "react-router-dom";
+
 
 const AdminDashboard = ({ auth, setStatus }) => {
     const [transactions, setTransactions] = useState([]);
     const [summary, setSummary] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
+
 
     const refreshData = useCallback(async () => {
-    setIsLoading(true);
-    setStatus('loading', 'Syncing data...');
+        setIsLoading(true);
+        setStatus('loading', 'Syncing data...');
 
-    try {
-        const [recent, summaryData] = await Promise.all([
-            apiService.fetchRecent(),
-            apiService.fetchSummary()
-        ]);
-        setTransactions(recent || []);
-        setSummary(summaryData?.aggregate || summaryData || null);
-        setStatus('success', 'Dashboard updated');
-    } catch (error) {
-        console.error(error);
-        setStatus('error', 'Failed to fetch dashboard data');
-    } finally {
-        setIsLoading(false);
-    }
-}, [setStatus]);
+        try {
+            const [recent, summaryData] = await Promise.all([
+                apiService.fetchRecent(),
+                apiService.fetchSummary()
+            ]);
+            setTransactions(recent || []);
+            setSummary(summaryData?.aggregate || summaryData || null);
+            setStatus('success', 'Dashboard updated');
+        } catch (error) {
+            console.error(error);
+            setStatus('error', 'Failed to fetch dashboard data');
+        } finally {
+            setIsLoading(false);
+        }
+    }, [setStatus]);
 
-useEffect(() => {
-    refreshData();
-}, []); 
+    useEffect(() => {
+        refreshData();
+    }, []);
 
 
     if (isLoading && !summary) {
@@ -56,15 +60,22 @@ useEffect(() => {
                 </div>
 
                 <div className="flex gap-3">
-                    <button 
-                        onClick={refreshData} 
-                        className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 text-white transition"
+                    <button
+                        onClick={() => navigate("/admin/users")}
+                        className="w-full p-3 bg-green-600 hover:bg-green-400 rounded-lg cursor-pointer"
+                    >
+                        Manage Users
+                    </button>
+
+                    <button
+                        onClick={refreshData}
+                        className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 text-white transition cursor-pointer"
                     >
                         <RefreshCw size={20} />
                     </button>
-                    <button 
-                        onClick={auth.signOut} 
-                        className="p-2 bg-red-900/30 text-red-400 rounded-lg hover:bg-red-900/50 transition"
+                    <button
+                        onClick={auth.signOut}
+                        className="p-2 bg-red-900/30 text-red-400 rounded-lg hover:bg-red-900/50 transition cursor-pointer"
                     >
                         <LogOut size={20} />
                     </button>
@@ -72,30 +83,30 @@ useEffect(() => {
             </header>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <KPICard 
-                    title="Net Balance" 
-                    value={summary ? formatCurrency(summary.netBalance) : '...'} 
-                    icon={TrendingUp} 
-                    color="text-green-400" 
+            <div className="grid grid-cols-1 lg:grid-cols-4 md:grid-cols-2  gap-4">
+                <KPICard
+                    title="Net Balance"
+                    value={summary ? formatCurrency(summary.netBalance) : '...'}
+                    icon={TrendingUp}
+                    color="text-green-400"
                 />
-                <KPICard 
-                    title="Total Income" 
-                    value={summary ? formatCurrency(summary.totalIncome) : '...'} 
-                    icon={DollarSign} 
-                    color="text-blue-400" 
+                <KPICard
+                    title="Total Income"
+                    value={summary ? formatCurrency(summary.totalIncome) : '...'}
+                    icon={DollarSign}
+                    color="text-blue-400"
                 />
-                <KPICard 
-                    title="Total Expenses" 
-                    value={summary ? formatCurrency(summary.totalExpenditure) : '...'} 
-                    icon={RefreshCw} 
-                    color="text-red-400" 
+                <KPICard
+                    title="Total Expenses"
+                    value={summary ? formatCurrency(summary.totalExpenditure) : '...'}
+                    icon={RefreshCw}
+                    color="text-red-400"
                 />
-                <KPICard 
-                    title="Transactions" 
-                    value={summary ? summary.transactionCount : '...'} 
-                    icon={Zap} 
-                    color="text-yellow-400" 
+                <KPICard
+                    title="Transactions"
+                    value={summary ? summary.transactionCount : '...'}
+                    icon={Zap}
+                    color="text-yellow-400"
                 />
             </div>
 
@@ -131,11 +142,10 @@ useEffect(() => {
                                     <tr key={tx._id} className="hover:bg-gray-800/50 transition">
                                         <td className="p-4">
                                             <span
-                                                className={`px-2 py-1 rounded text-xs font-bold ${
-                                                    ['Payment', 'Deposit'].includes(tx.type)
+                                                className={`px-2 py-1 rounded text-xs font-bold ${['Payment', 'Deposit'].includes(tx.type)
                                                         ? 'bg-green-900/30 text-green-400'
                                                         : 'bg-red-900/30 text-red-400'
-                                                }`}
+                                                    }`}
                                             >
                                                 {tx.type}
                                             </span>
@@ -146,11 +156,10 @@ useEffect(() => {
                                         </td>
 
                                         <td
-                                            className={`p-4 font-bold ${
-                                                ['Payment', 'Deposit'].includes(tx.type)
+                                            className={`p-4 font-bold ${['Payment', 'Deposit'].includes(tx.type)
                                                     ? 'text-green-400'
                                                     : 'text-red-400'
-                                            }`}
+                                                }`}
                                         >
                                             {formatCurrency(tx.amount)}
                                         </td>

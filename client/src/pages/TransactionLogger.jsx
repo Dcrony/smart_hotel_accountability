@@ -52,7 +52,8 @@ const TransactionLogger = ({ auth, setStatus, clients }) => {
   const buttonClass = isNegative ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700';
 
   return (
-    <div className="w-full max-w-lg bg-gray-900 p-6 rounded-2xl shadow-xl border border-gray-800">
+    <div className='flex justify-center item-center bg-gray-300'>
+    <div className=" w-full max-w-lg bg-gray-900 p-6 rounded-2xl shadow-xl border border-gray-800">
       <div className="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -62,7 +63,7 @@ const TransactionLogger = ({ auth, setStatus, clients }) => {
         </div>
         <button
           onClick={auth.signOut}
-          className="text-gray-500 hover:text-red-400 transition"
+          className="text-gray-500 hover:text-red-400 transition cursor-pointer"
         >
           <LogOut size={20} />
         </button>
@@ -180,6 +181,7 @@ const TransactionLogger = ({ auth, setStatus, clients }) => {
           </span>
         </button>
       </form>
+    </div>
     </div>
   );
 };
